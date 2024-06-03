@@ -1,5 +1,9 @@
 
 import http from "http"
+import * as abj from "./temp.js"
+import fs from "fs"
+fs.readFile()
+console.log(abj.am2)
 const server = http.createServer((req,res)=>{
     // console.log("servered");
     // res.end("<h1>out</h1>")
