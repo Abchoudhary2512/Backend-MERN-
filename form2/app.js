@@ -1,31 +1,58 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-const { body, validationResult } = require('express-validator');
+const express = require('express')
+const bodyParser = require('body-parser')
+const { check, validationResult } = require('express-validator')
 
-const app = express();
-const port = 3000;
+const app = express()
+const port = 5500
 
-// Middleware to parse form data
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
+// Set Templating Engine
+app.set('view engine', 'ejs')
 
-// Basic route for form submission
-app.post('/submit', 
-  [
-    // Validation rules
-    body('username').isLength({ min: 5 }).withMessage('Username must be at least 5 characters long'),
-    body('email').isEmail().withMessage('Must be a valid email'),
-    body('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters long')
-  ],
-  (req, res) => {
-    const errors = validationResult(req);
+const urlencodedParser = bodyParser.urlencoded({ extended: false })
+
+// In-memory storage for users
+const users = []
+
+// Navigation
+app.get('', (req, res) => {
+    res.render('index')
+})
+
+app.get('/register', (req, res) => {
+    res.render('register')
+})
+
+app.post('/register', urlencodedParser, [
+    check('username', 'This username must be 3+ characters long')
+        .exists()
+        .isLength({ min: 3 }),
+    check('email', 'Email is not valid')
+        .isEmail()
+        .normalizeEmail()
+], (req, res) => {
+    const errors = validationResult(req)
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-    res.send('Form submitted successfully!');
-  }
-);
+        const alert = errors.array()
+        res.render('register', {
+            alert
+        })
+    } else {
+        const { username, email } = req.body
 
-app.listen(port, () => {
-  console.log(`Server running at http://localhost:${port}`);
-});
+        // Check if user already exists
+        const userExists = users.find(user => user.email === email)
+        if (userExists) {
+            res.render('register', {
+                alert: [{ msg: 'User already exists' }]
+            })
+        } else {
+            // Register new user
+            users.push({ username, email })
+            res.render('register', {
+                alert: [{ msg: 'User registered successfully' }]
+            })
+        }
+    }
+})
+
+app.listen(port, () => console.info(`App listening on port: ${port}`))
