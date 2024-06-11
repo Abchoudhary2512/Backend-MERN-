@@ -1,0 +1,14 @@
+//npm 
+//dev dependencies
+//npm install package-name --save-dev
+//npm init
+//npm i 
+//npm i <package name>[-g,--save dev]
+//npm list
+//npm view <pn> version
+//  "progress": "^2(x).0(y).3(z)",
+//x is the major version
+// y is minor version
+// z is patch version
+^ (change the minor or patch version)
+~ (change only the patch version) 
